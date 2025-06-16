@@ -1,4 +1,4 @@
-package com.example.notification
+package stmikwp.zacky.fom_notification
 
 import io.flutter.embedding.android.FlutterActivity
 

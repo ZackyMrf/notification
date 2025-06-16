@@ -1,60 +1,29 @@
 import 'dart:async';
-
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-import 'home_screen.dart';
-
-class ReceivedNotification {
-  ReceivedNotification({
-    required this.id,
-    required this.title,
-    required this.body,
-    required this.payload,
-  });
-
-  final int id;
-  final String? title;
-  final String? body;
-  final String? payload;
-}
-
-String? selectedNotificationPayload;
-
-final StreamController<ReceivedNotification> didReceiveLocalNotificationStream =
-    StreamController<ReceivedNotification>.broadcast();
-
-final StreamController<String?> selectNotificationStream =
-    StreamController<String?>.broadcast();
 
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  static void initialize(BuildContext? context) {
+  // PERBAIKAN: Hapus parameter context yang tidak diperlukan
+  static Future<void> initialize() async {
     const InitializationSettings initializationSettings =
         InitializationSettings(
       android: AndroidInitializationSettings("@mipmap/ic_launcher"),
     );
 
-    _notificationsPlugin.initialize(initializationSettings,
-        onDidReceiveNotificationResponse:
-            (NotificationResponse notificationResponse) {
-      switch (notificationResponse.notificationResponseType) {
-        case NotificationResponseType.selectedNotification:
-          selectNotificationStream.add(notificationResponse.payload);
-          Navigator.of(context!).push(
-            MaterialPageRoute(builder: (context) => HomeScreen()),
-          );
-          break;
-        case NotificationResponseType.selectedNotificationAction:
-          break;
-      }
-    });
+    await _notificationsPlugin.initialize(
+      initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        print('Notification tapped: ${response.payload}');
+        // Handle notification tap di sini jika diperlukan
+      },
+    );
   }
 
-  static void createAndDisplayNotification(RemoteMessage message) async {
+  static Future<void> createAndDisplayNotification(RemoteMessage message) async {
     try {
       final id = DateTime.now().millisecondsSinceEpoch ~/ 1000;
 
@@ -62,6 +31,7 @@ class LocalNotificationService {
         android: AndroidNotificationDetails(
           "channel_id",
           "flutter_push_notification_app",
+          channelDescription: "Channel for push notifications",
           importance: Importance.max,
           priority: Priority.high,
         ),
@@ -69,13 +39,40 @@ class LocalNotificationService {
 
       await _notificationsPlugin.show(
         id,
-        message.notification!.title,
-        message.notification!.body,
+        message.notification?.title ?? 'No Title',
+        message.notification?.body ?? 'No Body',
         notificationDetails,
         payload: message.data["data"],
       );
-    } on Exception catch (e) {
-      print(e);
+    } catch (e) {
+      print('Error creating notification: $e');
     }
+  }
+
+  static Future<void> showNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    const AndroidNotificationDetails androidDetails =
+        AndroidNotificationDetails(
+      'default_channel',
+      'Default Channel',
+      channelDescription: 'Default notification channel',
+      importance: Importance.max,
+      priority: Priority.high,
+    );
+
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidDetails);
+
+    await _notificationsPlugin.show(
+      id,
+      title,
+      body,
+      notificationDetails,
+      payload: payload,
+    );
   }
 }
