@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "124368057601",
+    "project_id": "fom-notifcation",
+    "storage_bucket": "fom-notifcation.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:124368057601:android:9bfaba099faf64c9ffd700",
+        "android_client_info": {
+          "package_name": "stmikwp.zacky.fom_notification"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFF9JgvE954wy02pqlkhzSDWOv2MXWHBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
